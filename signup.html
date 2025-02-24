@@ -6,13 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function redirectToPage(event) {
+            event.preventDefault();
+            window.location.href = "login.html";
+        }
+    </script>
 </head>
 
 <body class="text-white w-full h-full bg-no-repeat bg-cover flex items-center justify-center h-screen"
     style="background-image: url('./images/—Slidesdocs—childrens\ day\ children\ playing\ games_cba6ed0c08.jpg');">
     <div class="bg-black p-8 rounded-lg shadow-lg w-96">
         <h1 class="text-3xl font-bold text-center mb-6">Sign Up</h1>
-        <form>
+        <form onsubmit="redirectToPage(event)">
             <div class="mb-4">
                 <label for="username" class="block text-sm font-medium">Username</label>
                 <input type="text" id="username"

@@ -6,12 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function redirectToPage(event) {
+            event.preventDefault();
+            window.location.href = "dashboard.html";
+        }
+    </script>
 </head>
 
-<body class="text-white w-full h-full bg-no-repeat bg-cover flex items-center justify-center h-screen" style="background-image: url('./images/—Slidesdocs—childrens\ day\ children\ playing\ games_cba6ed0c08.jpg');">
+<body class="text-white w-full h-full bg-no-repeat bg-cover flex items-center justify-center h-screen"
+    style="background-image: url('./images/—Slidesdocs—childrens\ day\ children\ playing\ games_cba6ed0c08.jpg');">
     <div class="bg-black p-8 rounded-lg shadow-lg w-96">
         <h1 class="text-3xl font-bold text-center mb-6">Login</h1>
-        <form>
+        <form onsubmit="redirectToPage(event)">
             <div class="mb-4">
                 <label for="email" class="block text-sm font-medium">Email</label>
                 <input type="email" id="email"
@@ -29,8 +36,8 @@
         </form>
         <p class="text-center text-gray-400 mt-4">Don't have an account? <a href="./signup.html"
                 class="text-blue-400 hover:underline">Sign Up</a></p>
-        <p class="text-center text-gray-400 mt-4"><a href="./index.html"
-                class="text-blue-400 hover:underline">Home Page</a></p>
+        <p class="text-center text-gray-400 mt-4"><a href="./index.html" class="text-blue-400 hover:underline">Home
+                Page</a></p>
     </div>
 </body>
 
