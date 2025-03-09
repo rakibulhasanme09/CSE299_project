@@ -46,19 +46,17 @@ style="background-image: url('./images/vecteezy_nature-landscape-vector-illustra
     let tiles = [];
     let emptyTile = { row: gridSize - 1, col: gridSize - 1 };
 
-    // Initialize the puzzle
     function initializePuzzle() {
       tiles = [];
       let numbers = Array.from({ length: gridSize * gridSize - 1 }, (_, i) => i + 1);
-      numbers.push(null); // Empty tile represented by null
+      numbers.push(null);
 
-      // Shuffle the numbers
+
       for (let i = numbers.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
       }
 
-      // Fill the tiles array
       for (let row = 0; row < gridSize; row++) {
         tiles[row] = [];
         for (let col = 0; col < gridSize; col++) {
@@ -72,7 +70,6 @@ style="background-image: url('./images/vecteezy_nature-landscape-vector-illustra
       renderPuzzle();
     }
 
-    // Render the puzzle grid
     function renderPuzzle() {
       const puzzleGrid = document.getElementById('puzzle-grid');
       puzzleGrid.innerHTML = '';
@@ -93,10 +90,8 @@ style="background-image: url('./images/vecteezy_nature-landscape-vector-illustra
       checkWin();
     }
 
-    // Move a tile
     function moveTile(row, col) {
       if (isAdjacent(row, col, emptyTile.row, emptyTile.col)) {
-        // Swap the clicked tile with the empty tile
         tiles[emptyTile.row][emptyTile.col] = tiles[row][col];
         tiles[row][col] = null;
         emptyTile = { row, col };
@@ -104,7 +99,6 @@ style="background-image: url('./images/vecteezy_nature-landscape-vector-illustra
       }
     }
 
-    // Check if two tiles are adjacent
     function isAdjacent(row1, col1, row2, col2) {
       return (
         (Math.abs(row1 - row2) === 1 && col1 === col2) ||
@@ -112,7 +106,6 @@ style="background-image: url('./images/vecteezy_nature-landscape-vector-illustra
       );
     }
 
-    // Check if the puzzle is solved
     function checkWin() {
       let currentNumber = 1;
       for (let row = 0; row < gridSize; row++) {
@@ -129,14 +122,12 @@ style="background-image: url('./images/vecteezy_nature-landscape-vector-illustra
       document.getElementById('puzzle-grid').classList.add('win-animation');
     }
 
-    // Shuffle the puzzle
     document.getElementById('shuffle-btn').addEventListener('click', () => {
       initializePuzzle();
       document.getElementById('message').textContent = '';
       document.getElementById('puzzle-grid').classList.remove('win-animation');
     });
 
-    // Initialize the puzzle on page load
     window.onload = initializePuzzle;
   </script>
 </body>
