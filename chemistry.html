@@ -2,162 +2,187 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chemistry Game</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .beaker {
-      width: 100px;
-      height: 140px;
-      background-color: lightgray;
-      border-radius: 10px 10px 50px 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      text-align: center;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-      border: 3px solid #333;
-      position: absolute;
-      overflow: hidden;
-      transition: transform 1s ease-in-out, opacity 1s ease-in-out;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .beaker {
+            width: 100px;
+            height: 140px;
+            background-color: lightgray;
+            border-radius: 10px 10px 50px 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            border: 3px solid #333;
+            position: relative;
+            overflow: hidden;
+            transition: transform 1s ease-in-out;
+            cursor: pointer;
+            margin: 0 10px;
+        }
 
-    .liquid {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 50%;
-      transition: height 0.5s ease;
-    }
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            transition: height 0.5s ease;
+        }
 
-    .tilted {
-      transform: rotate(-30deg);
-    }
-
-    #target-name {
-      opacity: 1;
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-  </style>
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+    </style>
 </head>
 
-<body
-  class="flex flex-col items-center justify-center h-screen bg-blue-200 w-full h-full bg-no-repeat bg-cover backdrop-blur-lg"
-  style="background-image: url('./images/vecteezy_scientist-with-lap-test-tubes-concept_.jpg');">
-  <h1 id="experiment-title" class="text-3xl font-bold mb-2">Create:</h1>
-  <p id="target-name" class="text-xl font-bold text-blue-800 mb-4"></p>
+<body class="flex flex-col items-center justify-center h-screen bg-blue-200 w-full h-full bg-no-repeat bg-cover backdrop-blur-lg"
+style="background-image: url('./images/vecteezy_scientist-with-lap-test-tubes-concept_.jpg');">
+    <h1 id="create-text" class="text-3xl font-bold mb-2">Create:</h1>
+    <p id="target-name" class="text-xl font-bold text-blue-800 mb-4"></p>
 
-  <div id="experiment-container" class="relative w-full flex justify-center items-center mb-4" style="height: 200px;">
-  </div>
+    <div id="experiment-container" class="center-container"></div>
 
-  <p id="reaction" class="mt-4 text-lg font-bold text-green-600 hidden"></p>
-  <p id="congrats" class="mt-4 text-2xl font-bold hidden">Well Done! Keep it up.</p>
+    <div class="beaker bg-gray-300 w-32 h-40 relative mt-10" id="result-beaker">
+        <div class="liquid" id="result-liquid" style="height: 0%;"></div>
+    </div>
 
-  <a href="./science_game.html"><button id="homeButton" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded hidden">Go Home</button></a>
-  <button id="nextStep" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50" disabled>Next</button>
+    <p id="reaction" class="mt-4 text-lg font-bold text-green-600 hidden"></p>
+    <p id="wrong-message" class="mt-4 text-lg font-bold text-red-600 hidden">Wrong reaction!</p>
 
-  <script>
-    let experiments = [
-      { reactants: ['H₂', 'O₂'], product: 'H₂O', equation: '2H₂ + O₂ → 2H₂O', color: 'bg-blue-400' },
-      { reactants: ['Na', 'Cl₂'], product: 'NaCl', equation: '2Na + Cl₂ → 2NaCl', color: 'bg-yellow-400' },
-      { reactants: ['C', 'O₂'], product: 'CO₂', equation: 'C + O₂ → CO₂', color: 'bg-gray-500' },
-      { reactants: ['Fe', 'O₂'], product: 'Fe₂O₃', equation: '4Fe + 3O₂ → 2Fe₂O₃', color: 'bg-red-500' },
-      { reactants: ['Ca', 'CO₃'], product: 'CaCO₃', equation: 'Ca + CO₃ → CaCO₃', color: 'bg-gray-400' }
-    ];
-    let currentExperiment = 0;
-    const container = document.getElementById('experiment-container');
-    const targetName = document.getElementById('target-name');
-    const reactionText = document.getElementById('reaction');
-    const congratsText = document.getElementById('congrats');
-    const nextButton = document.getElementById('nextStep');
-    const homeButton = document.getElementById('homeButton');
-    const experimentTitle = document.getElementById('experiment-title');
+    <button id="nextStep" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+        disabled>Next</button>
 
-    function startExperiment(index) {
-      container.innerHTML = '';
-      reactionText.innerText = '';
-      reactionText.classList.add('hidden');
-      congratsText.classList.add('hidden');
-      experimentTitle.classList.remove('hidden');
-      targetName.classList.remove('hidden');
-      nextButton.disabled = true;
-      nextButton.classList.add('opacity-50');
+    <!-- Game Over Section -->
+    <div id="game-over" class="mt-4 text-xl font-bold text-purple-800 hidden flex flex-col items-center justify-center">
+        <p>Correct Reactions: <span id="correct-count">0</span></p>
+        <a href="./science_game.html"><button id="homeButton" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded">Home</button></a>
+    </div>
 
-      if (index >= experiments.length) {
-        showCongratulations();
-        return;
-      }
+    <script>
+        let experiments = [
+            { reactants: ['H₂', 'O₂'], product: 'H₂O', equation: '2H₂ + O₂ → 2H₂O', color: 'bg-blue-400' },
+            { reactants: ['Na', 'Cl₂'], product: 'NaCl', equation: '2Na + Cl₂ → 2NaCl', color: 'bg-yellow-400' },
+            { reactants: ['C', 'O₂'], product: 'CO₂', equation: 'C + O₂ → CO₂', color: 'bg-gray-500' },
+            { reactants: ['Fe', 'O₂'], product: 'Fe₂O₃', equation: '4Fe + 3O₂ → 2Fe₂O₃', color: 'bg-red-500' },
+            { reactants: ['Ca', 'CO₃'], product: 'CaCO₃', equation: 'Ca + CO₃ → CaCO₃', color: 'bg-gray-400' }
+        ];
 
-      let experiment = experiments[index];
-      targetName.innerText = experiment.product;
-      reactionText.innerText = experiment.equation;
+        let correctCount = 0;
+        let currentExperiment = 0;
+        const container = document.getElementById('experiment-container');
+        const targetName = document.getElementById('target-name');
+        const createText = document.getElementById('create-text');
+        const reactionText = document.getElementById('reaction');
+        const wrongMessage = document.getElementById('wrong-message');
+        const nextButton = document.getElementById('nextStep');
+        const resultBeaker = document.getElementById('result-beaker');
+        const resultLiquid = document.getElementById('result-liquid');
+        const gameOverDiv = document.getElementById('game-over');
+        const correctCountSpan = document.getElementById('correct-count');
+        const homeButton = document.getElementById('homeButton');
 
-      let reactantStates = {};
+        function startExperiment(index) {
+            container.innerHTML = '';
+            reactionText.classList.add('hidden');
+            wrongMessage.classList.add('hidden');
+            nextButton.disabled = true;
+            nextButton.classList.add('opacity-50');
+            resultLiquid.className = 'liquid';
+            resultLiquid.style.height = '0%';
+            gameOverDiv.classList.add('hidden'); // Hide game over section initially
 
-      experiment.reactants.forEach((reactant, i) => {
-        let beaker = document.createElement('div');
-        beaker.className = `beaker ${i % 2 === 0 ? 'bg-red-300' : 'bg-blue-300'} cursor-pointer`;
-        beaker.style.left = i === 0 ? '30%' : '65%';
-        beaker.innerText = reactant;
-        beaker.addEventListener('click', () => {
-          if (!reactantStates[reactant]) {
-            moveBeakerToTarget(beaker, i === 0 ? 10 : -10);
-            reactantStates[reactant] = true;
-            checkReaction();
-          }
-        });
-        container.appendChild(beaker);
-      });
+            // Show create text, target name, beaker, and next button
+            createText.classList.remove('hidden');
+            targetName.classList.remove('hidden');
+            resultBeaker.classList.remove('hidden');
+            nextButton.classList.remove('hidden');
 
-      let target = document.createElement('div');
-      target.className = 'beaker bg-gray-300 w-32 h-40 relative';
-      target.innerHTML = `<div class="liquid" id="waterLiquid" style="height: 0%;"></div>`;
-      container.appendChild(target);
+            if (index >= experiments.length) {
+                // Hide create text, target name, beaker, and next button
+                createText.classList.add('hidden');
+                targetName.classList.add('hidden');
+                resultBeaker.classList.add('hidden');
+                nextButton.classList.add('hidden');
 
-      function moveBeakerToTarget(beaker, xOffset) {
-        const targetRect = target.getBoundingClientRect();
-        const beakerRect = beaker.getBoundingClientRect();
-        const moveX = targetRect.left - beakerRect.left + xOffset;
-        const moveY = targetRect.top - beakerRect.top - 20;
-        beaker.style.transform = `translate(${moveX}px, ${moveY}px) rotate(-30deg)`;
-        setTimeout(() => beaker.style.opacity = '0', 1000);
-      }
-
-      function checkReaction() {
-        if (Object.keys(reactantStates).length === experiment.reactants.length) {
-          setTimeout(() => {
-            reactionText.classList.remove('hidden');
-            document.getElementById('waterLiquid').classList.add(experiment.color);
-            document.getElementById('waterLiquid').style.height = "80%";
-            nextButton.disabled = false;
-            nextButton.classList.remove('opacity-50');
-
-            if (currentExperiment === experiments.length - 1) {
-              setTimeout(showCongratulations, 2000);
+                // Show the counter and home button when all experiments are done
+                correctCountSpan.innerText = correctCount;
+                gameOverDiv.classList.remove('hidden');
+                return;
             }
-          }, 1000);
+
+            let experiment = experiments[index];
+            targetName.innerText = experiment.product;
+            let reactantStates = {};
+
+            let allReactants = [...experiment.reactants, 'H₂SO₄', 'NH₃']; // Adding random chemicals
+            allReactants.sort(() => Math.random() - 0.5);
+
+            allReactants.forEach((reactant, i) => {
+                let beaker = document.createElement('div');
+                beaker.className = `beaker ${i % 2 === 0 ? 'bg-red-300' : 'bg-blue-300'}`;
+                beaker.innerText = reactant;
+
+                beaker.addEventListener('click', () => {
+                    let resultRect = document.getElementById('result-beaker').getBoundingClientRect();
+                    let beakerRect = beaker.getBoundingClientRect();
+                    let moveX = resultRect.left - beakerRect.left;
+                    let moveY = resultRect.top - beakerRect.top;
+
+                    beaker.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    beaker.style.pointerEvents = 'none';
+
+                    if (experiment.reactants.includes(reactant)) {
+                        reactantStates[reactant] = true;
+                    } else {
+                        wrongMessage.classList.remove('hidden');
+                        resultLiquid.classList.add('bg-red-500');
+                        resultLiquid.style.height = '80%';
+                        nextButton.disabled = false; // Enable the "Next" button even after a wrong reaction
+                        nextButton.classList.remove('opacity-50');
+                    }
+                    checkReaction();
+                });
+
+                container.appendChild(beaker);
+            });
+
+            function checkReaction() {
+                if (Object.keys(reactantStates).length === experiment.reactants.length) {
+                    reactionText.classList.remove('hidden');
+                    reactionText.innerText = experiment.equation;
+                    correctCount++;
+                    resultLiquid.classList.add(experiment.color);
+                    resultLiquid.style.height = '80%';
+                    nextButton.disabled = false;
+                    nextButton.classList.remove('opacity-50');
+                }
+            }
         }
-      }
-    }
 
-    function showCongratulations() {
-      congratsText.classList.remove('hidden');
-      nextButton.classList.add('hidden');
-      homeButton.classList.remove('hidden');
-      experimentTitle.classList.add('hidden');
-      targetName.classList.add('hidden');
-    }
+        nextButton.addEventListener('click', () => {
+            currentExperiment++;
+            startExperiment(currentExperiment);
+        });
 
-    nextButton.addEventListener('click', () => {
-      currentExperiment++;
-      startExperiment(currentExperiment);
-    });
+        // Home button to reset the game
+        homeButton.addEventListener('click', () => {
+            currentExperiment = 0;
+            correctCount = 0;
+            startExperiment(currentExperiment);
+        });
 
-    startExperiment(currentExperiment);
-  </script>
+        startExperiment(currentExperiment);
+    </script>
 </body>
 
 </html>
