@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Ball Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        canvas { border: 1px solid #007BFF; background-color: #f0f0f0; }
+        #score { font-size: 20px; margin: 10px; }
+        #level { font-size: 20px; margin: 10px; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center h-screen w-full h-full bg-no-repeat bg-cover backdrop-blur-xl"
+style="background-image: url('./images/vecteezy_nature-landscape-vector-illustration-with-a-cute-and_13549621-1.jpg');">
+    <h1 class="text-3xl font-bold">Gravity Ball Game</h1>
+    <div id="score">Score: 0</div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let ball = { x: 50, y: 350, radius: 15, dy: 0 };
+        let stars = [];
+        let obstacles = [];
+        let score = 0;
+        let level = 1;
+        let gravity = 0.5;
+        let friction = 0.98;
+        let gameOver = false;
+
+        // Create stars and obstacles
+        function createStarsAndObstacles() {
+            stars = [];
+            obstacles = [];
+
+            for (let i = 0; i < 5 + level; i++) {
+                stars.push({ x: Math.random() * 370, y: Math.random() * 300, radius: 5 });
+            }
+
+            for (let i = 0; i < level; i++) {
+                obstacles.push({ x: Math.random() * 370, y: Math.random() * 300, width: 40, height: 10 });
+            }
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawStars() {
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "gold";
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                ctx.fillStyle = "red";
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        function update() {
+            if (!gameOver) {
+                ball.dy += gravity; // Apply gravity
+                ball.y += ball.dy; // Update ball position
+                ball.y *= friction; // Apply friction
+
+                // Check for collision with stars
+                stars.forEach((star, index) => {
+                    const dist = Math.hypot(ball.x - star.x, ball.y - star.y);
+                    if (dist < ball.radius + star.radius) {
+                        stars.splice(index, 1); // Remove star
+                        score++;
+                        document.getElementById("score").innerText = "Score: " + score; // Update score
+                    }
+                });
+
+                // Check for collision with obstacles
+                obstacles.forEach(obstacle => {
+                    if (ball.x + ball.radius > obstacle.x && ball.x - ball.radius < obstacle.x + obstacle.width &&
+                        ball.y + ball.radius > obstacle.y && ball.y - ball.radius < obstacle.y + obstacle.height) {
+                        gameOver = true; // End game on collision
+                    }
+                });
+
+                // Check for boundaries
+                if (ball.y + ball.radius >= canvas.height) {
+                    ball.y = canvas.height - ball.radius; // Stop at the bottom
+                    ball.dy = 0; // Reset velocity
+                }
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+                drawBall();
+                drawStars();
+                drawObstacles();
+                requestAnimationFrame(update);
+            } else {
+                ctx.fillStyle = "red";
+                ctx.font = "30px Arial";
+                ctx.fillText("Game Over!", 120, 200);
+                ctx.font = "20px Arial";
+                ctx.fillText("Final Score: " + score, 130, 230);
+                ctx.fillText("Press R to Restart", 120, 260);
+            }
+        }
+
+        // Start the game
+        createStarsAndObstacles();
+        update();
+
+        // Control the ball with keyboard
+        window.addEventListener("keydown", function (event) {
+            if (event.key === "ArrowRight") {
+                ball.x += 20; // Move right
+            }
+            if (event.key === "ArrowLeft") {
+                ball.x -= 20; // Move left
+            }
+            if (event.key === " ") {
+                ball.dy = -10; // Jump
+            }
+            if (event.key === "r" && gameOver) {
+                score = 0;
+                level = 1;
+                ball.x = 50;
+                ball.y = 350;
+                ball.dy = 0;
+                gameOver = false;
+                document.getElementById("score").innerText = "Score: 0";
+                document.getElementById("level").innerText = "Level: 1";
+                createStarsAndObstacles();
+                update();
+            }
+        });
+
+        // Level up after collecting all stars
+        setInterval(() => {
+            if (stars.length === 0 && !gameOver) {
+                level++;
+                document.getElementById("level").innerText = "Level: " + level;
+                createStarsAndObstacles();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
