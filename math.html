@@ -40,12 +40,41 @@
     .bounce {
       animation: bounce 0.5s;
     }
+
+    /* Media queries for mobile responsiveness */
+    @media (max-width: 640px) {
+      #game-container {
+        width: 90%;
+        max-width: 300px;
+      }
+
+      #question {
+        font-size: 1.5rem;
+      }
+
+      #options {
+        grid-template-columns: 1fr;
+      }
+
+      .option {
+        padding: 12px;
+        font-size: 1rem;
+      }
+
+      #result {
+        font-size: 1.2rem;
+      }
+
+      #next {
+        padding: 8px 16px;
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 
-<body class="flex flex-col items-center justify-center h-screen w-full h-full bg-no-repeat bg-cover backdrop-blur-lg"
-  style="background-image: url('./images/vecteezy_nature-landscape-vector-illustration-with-a-cute-and_13549621-1.jpg');">
-  <div id="game-container" class="bg-white p-8 rounded-lg shadow-2xl text-center w-96">
+<body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-orange-100 via-green-400 to-green-700">
+  <div id="game-container" class=" p-8 rounded-lg shadow-2xl text-center w-96">
     <p id="question" class="text-2xl font-bold mb-4 text-gray-800"></p>
     <div id="options" class="grid grid-cols-2 gap-4 mb-4">
     </div>
@@ -76,7 +105,7 @@
           answer = num1 * num2;
           break;
         case '/':
-          answer = (num1 / num2).toFixed(2); 
+          answer = (num1 / num2).toFixed(2);
           break;
       }
 
@@ -173,7 +202,6 @@
     }
 
     document.getElementById('next').addEventListener('click', nextProblem);
-
 
     initializeGame();
   </script>
