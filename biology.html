@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Match the Body Part!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .draggable:active {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-r from-orange-100 via-green-400 to-green-700 min-h-screen p-6 flex flex-col items-center">
+
+    <h1 class="text-4xl font-bold text-green-800 mb-4 text-center">Match the Body Part!</h1>
+    <p class="text-gray-700 text-center mb-6 text-lg max-w-xl">
+        Drag the correct function to match the body part! Learn what each organ does in your amazing body!
+    </p>
+
+    <!-- Organs (Drop Targets) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+        <div class="bg-gradient-to-r from-orange-100 via-green-400 to-green-700 rounded-xl shadow-lg p-4 border-4 border-green-400 w-56 h-32 flex flex-col justify-between items-center"
+            ondrop="drop(event)" ondragover="allowDrop(event)" data-match="brain">
+            🧠 <span class="font-semibold">Brain</span>
+        </div>
+        <div class="bg-gradient-to-r from-orange-100 via-green-400 to-green-700 rounded-xl shadow-lg p-4 border-4 border-pink-400 w-56 h-32 flex flex-col justify-between items-center"
+            ondrop="drop(event)" ondragover="allowDrop(event)" data-match="heart">
+            ❤️ <span class="font-semibold">Heart</span>
+        </div>
+        <div class="bg-gradient-to-r from-orange-100 via-green-400 to-green-700 rounded-xl shadow-lg p-4 border-4 border-yellow-400 w-56 h-32 flex flex-col justify-between items-center"
+            ondrop="drop(event)" ondragover="allowDrop(event)" data-match="lungs">
+            🫁 <span class="font-semibold">Lungs</span>
+        </div>
+        <div class="bg-gradient-to-r from-orange-100 via-green-400 to-green-700 rounded-xl shadow-lg p-4 border-4 border-blue-400 w-56 h-32 flex flex-col justify-between items-center"
+            ondrop="drop(event)" ondragover="allowDrop(event)" data-match="stomach">
+            🍽️ <span class="font-semibold">Stomach</span>
+        </div>
+        <div class="bg-gradient-to-r from-orange-100 via-green-400 to-green-700 rounded-xl shadow-lg p-4 border-4 border-purple-400 w-56 h-32 flex flex-col justify-between items-center"
+            ondrop="drop(event)" ondragover="allowDrop(event)" data-match="eyes">
+            👀 <span class="font-semibold">Eyes</span>
+        </div>
+    </div>
+
+    <!-- Function Labels (Draggable) -->
+    <div class="flex flex-wrap gap-4 justify-center">
+        <div id="brain" draggable="true" ondragstart="drag(event)"
+            class="draggable cursor-move bg-green-200 border border-green-500 text-green-800 px-4 py-2 rounded-full shadow">
+            Thinks & controls the body
+        </div>
+        <div id="heart" draggable="true" ondragstart="drag(event)"
+            class="draggable cursor-move bg-pink-200 border border-pink-500 text-pink-800 px-4 py-2 rounded-full shadow">
+            Pumps blood
+        </div>
+        <div id="lungs" draggable="true" ondragstart="drag(event)"
+            class="draggable cursor-move bg-yellow-200 border border-yellow-500 text-yellow-800 px-4 py-2 rounded-full shadow">
+            Helps us breathe
+        </div>
+        <div id="stomach" draggable="true" ondragstart="drag(event)"
+            class="draggable cursor-move bg-blue-200 border border-blue-500 text-blue-800 px-4 py-2 rounded-full shadow">
+            Digests food
+        </div>
+        <div id="eyes" draggable="true" ondragstart="drag(event)"
+            class="draggable cursor-move bg-purple-200 border border-purple-500 text-purple-800 px-4 py-2 rounded-full shadow">
+            Helps us see
+        </div>
+
+
+    </div>
+
+    <!-- <div class="mt-5">
+        <button href="dashboard.html"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full">Home</button>
+    </div> -->
+
+    <!-- Result Message -->
+    <p id="result" class="mt-8 text-xl font-bold text-green-700 hidden">Great job!</p>
+
+    <script>
+        let correctCount = 0;
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const draggedId = ev.dataTransfer.getData("text");
+            const target = ev.currentTarget;
+            const expectedId = target.getAttribute("data-match");
+
+            if (draggedId === expectedId) {
+                const draggedEl = document.getElementById(draggedId);
+                if (!draggedEl.classList.contains("matched")) {
+                    draggedEl.classList.add("matched", "opacity-50", "pointer-events-none");
+                    target.appendChild(draggedEl);
+                    correctCount++;
+                }
+                if (correctCount === 5) {
+                    document.getElementById("result").classList.remove("hidden");
+                }
+            } else {
+                alert("❌ Oops! That doesn't match the body part. Try again!");
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Magnet Sort Puzzle</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .draggable {
+      transition: transform 0.2s;
+    }
+    .draggable:active {
+      transform: scale(1.1);
+    }
+    .bin {
+      transition: background-color 0.3s;
+    }
+    .bin:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-orange-100 via-green-400 to-green-700 min-h-screen flex flex-col items-center py-10 px-4">
+
+  <h1 class="text-4xl font-bold text-blue-900 mb-4 text-center">🧲 Magnet Sort Puzzle</h1>
+  <p class="text-gray-700 text-center max-w-xl mb-8 text-lg">
+    Drag each object into the correct bin: <span class="text-blue-700 font-semibold">Magnetic</span> 🧲 or <span class="text-red-600 font-semibold">Non-Magnetic</span> 🚫.
+  </p>
+
+  <!-- Items to Sort -->
+  <div class="flex gap-4 flex-wrap justify-center mb-10">
+    <div id="item1" draggable="true" ondragstart="drag(event)" data-type="magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-blue-400 cursor-move text-center">🪛 Screw</div>
+    <div id="item2" draggable="true" ondragstart="drag(event)" data-type="non-magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-red-400 cursor-move text-center">🪵 Wooden Block</div>
+    <div id="item3" draggable="true" ondragstart="drag(event)" data-type="magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-blue-400 cursor-move text-center">📎 Paperclip</div>
+    <div id="item4" draggable="true" ondragstart="drag(event)" data-type="non-magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-red-400 cursor-move text-center">🧽 Sponge</div>
+    <div id="item5" draggable="true" ondragstart="drag(event)" data-type="magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-blue-400 cursor-move text-center">🔩 Nail</div>
+    <div id="item6" draggable="true" ondragstart="drag(event)" data-type="non-magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-red-400 cursor-move text-center">🧃 Juice Box</div>
+    <div id="item7" draggable="true" ondragstart="drag(event)" data-type="magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-blue-400 cursor-move text-center">🔧 Wrench</div>
+    <div id="item8" draggable="true" ondragstart="drag(event)" data-type="magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-blue-400 cursor-move text-center">🪙 Coin</div>
+    <div id="item9" draggable="true" ondragstart="drag(event)" data-type="non-magnetic"
+         class="draggable bg-white px-4 py-2 rounded-xl shadow-lg border-2 border-red-400 cursor-move text-center">🧸 Teddy Bear</div>
+  </div>
+
+  <!-- Drop Bins -->
+  <div class="flex justify-center gap-10 flex-wrap">
+    <div id="magneticBin" ondrop="drop(event)" ondragover="allowDrop(event)"
+         class="bin w-72 h-60 bg-gradient-to-r from-orange-100 via-green-400 to-green-700 border-4 border-blue-600 rounded-3xl p-4 flex flex-col items-center overflow-auto">
+      <div class="text-2xl mb-2">🧲 Magnetic</div>
+      <div class="text-sm text-blue-900 text-center">Items that stick to magnets</div>
+    </div>
+
+    <div id="nonMagneticBin" ondrop="drop(event)" ondragover="allowDrop(event)"
+         class="bin w-72 h-60 bg-gradient-to-r from-orange-100 via-green-400 to-green-700 border-4 border-red-600 rounded-3xl p-4 flex flex-col items-center overflow-auto">
+      <div class="text-2xl mb-2">🚫 Non-Magnetic</div>
+      <div class="text-sm text-red-900 text-center">Items that don’t stick to magnets</div>
+    </div>
+  </div>
+
+  <!-- <div  href="./dashboard.html" class="mt-5">
+    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full">Home</button>
+  </div> -->
+
+  <!-- Result -->
+  <p id="result" class="mt-10 text-2xl font-bold text-green-600 hidden">
+    Good Job!
+  </p>
+
+  <script>
+    let correctCount = 0;
+    const totalItems = 9;
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const itemId = ev.dataTransfer.getData("text");
+      const item = document.getElementById(itemId);
+      const itemType = item.dataset.type;
+      const targetBin = ev.target.closest("div");
+
+      const correctBinId = itemType === "magnetic" ? "magneticBin" : "nonMagneticBin";
+
+      if (targetBin.id === correctBinId) {
+        if (!item.classList.contains("sorted")) {
+          targetBin.appendChild(item);
+          item.classList.add("sorted", "opacity-60", "pointer-events-none");
+          correctCount++;
+        }
+
+        if (correctCount === totalItems) {
+          document.getElementById("result").classList.remove("hidden");
+        }
+      } else {
+        alert("Oops! That's not the correct bin. Try again!");
+      }
+    }
+  </script>
+</body>
+</html>

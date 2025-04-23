@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .beaker {
+            width: 80px;
+            height: 120px;
+            background-color: lightgray;
+            border-radius: 10px 10px 50px 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            border: 3px solid #333;
+            position: relative;
+            overflow: hidden;
+            transition: transform 1s ease-in-out;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            transition: height 0.5s ease;
+        }
+
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            height: 200px;
+        }
+
+        @media (max-width: 640px) {
+            .beaker {
+                width: 60px;
+                height: 90px;
+                font-size: 0.8rem;
+                margin: 0 5px;
+            }
+
+            #create-text {
+                font-size: 1.5rem;
+            }
+
+            #target-name {
+                font-size: 1.2rem;
+            }
+
+            #reaction, #wrong-message {
+                font-size: 1rem;
+            }
+
+            #nextStep {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .center-container {
+                height: 150px;
+            }
+
+            #result-beaker {
+                width: 80px;
+                height: 100px;
+            }
+
+            #game-over {
+                font-size: 1.2rem;
+            }
+
+            #homeButton {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-orange-100 via-green-400 to-green-700">
+    <h1 id="create-text" class="text-3xl font-bold mb-2">Create:</h1>
+    <p id="target-name" class="text-xl font-bold text-blue-800 mb-4"></p>
+
+    <div id="experiment-container" class="center-container"></div>
+
+    <div class="beaker bg-gray-300 w-32 h-40 relative mt-10" id="result-beaker">
+        <div class="liquid" id="result-liquid" style="height: 0%;"></div>
+    </div>
+
+    <p id="reaction" class="mt-4 text-lg font-bold text-green-600 hidden"></p>
+    <p id="wrong-message" class="mt-4 text-lg font-bold text-red-600 hidden">Wrong reaction!</p>
+
+    <button id="nextStep" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50" disabled>Next</button>
+
+    <!-- Game Over Section -->
+    <div id="game-over" class="mt-4 text-xl font-bold text-purple-800 hidden flex flex-col items-center justify-center">
+        <p>Correct Reactions: <span id="correct-count">0</span></p>
+        <a href="./dashboard.html"><button id="homeButton" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded">Home</button></a>
+    </div>
+
+    <script>
+        let experiments = [
+            { reactants: ['H₂', 'O₂'], product: 'H₂O', equation: '2H₂ + O₂ → 2H₂O', color: 'bg-blue-400' },
+            { reactants: ['Na', 'Cl₂'], product: 'NaCl', equation: '2Na + Cl₂ → 2NaCl', color: 'bg-yellow-400' },
+            { reactants: ['C', 'O₂'], product: 'CO₂', equation: 'C + O₂ → CO₂', color: 'bg-gray-500' },
+            { reactants: ['Fe', 'O₂'], product: 'Fe₂O₃', equation: '4Fe + 3O₂ → 2Fe₂O₃', color: 'bg-red-500' },
+            { reactants: ['Ca', 'CO₃'], product: 'CaCO₃', equation: 'Ca + CO₃ → CaCO₃', color: 'bg-gray-400' }
+        ];
+
+        let correctCount = 0;
+        let currentExperiment = 0;
+        const container = document.getElementById('experiment-container');
+        const targetName = document.getElementById('target-name');
+        const createText = document.getElementById('create-text');
+        const reactionText = document.getElementById('reaction');
+        const wrongMessage = document.getElementById('wrong-message');
+        const nextButton = document.getElementById('nextStep');
+        const resultBeaker = document.getElementById('result-beaker');
+        const resultLiquid = document.getElementById('result-liquid');
+        const gameOverDiv = document.getElementById('game-over');
+        const correctCountSpan = document.getElementById('correct-count');
+        const homeButton = document.getElementById('homeButton');
+
+        function startExperiment(index) {
+            container.innerHTML = '';
+            reactionText.classList.add('hidden');
+            wrongMessage.classList.add('hidden');
+            nextButton.disabled = true;
+            nextButton.classList.add('opacity-50');
+            resultLiquid.className = 'liquid';
+            resultLiquid.style.height = '0%';
+            gameOverDiv.classList.add('hidden'); // Hide game over section initially
+
+            // Show create text, target name, beaker, and next button
+            createText.classList.remove('hidden');
+            targetName.classList.remove('hidden');
+            resultBeaker.classList.remove('hidden');
+            nextButton.classList.remove('hidden');
+
+            if (index >= experiments.length) {
+                // Hide create text, target name, beaker, and next button
+                createText.classList.add('hidden');
+                targetName.classList.add('hidden');
+                resultBeaker.classList.add('hidden');
+                nextButton.classList.add('hidden');
+
+                // Show the counter and home button when all experiments are done
+                correctCountSpan.innerText = correctCount;
+                gameOverDiv.classList.remove('hidden');
+                return;
+            }
+
+            let experiment = experiments[index];
+            targetName.innerText = experiment.product;
+            let reactantStates = {};
+
+            let allReactants = [...experiment.reactants, 'H₂SO₄', 'NH₃']; // Adding random chemicals
+            allReactants.sort(() => Math.random() - 0.5);
+
+            allReactants.forEach((reactant, i) => {
+                let beaker = document.createElement('div');
+                beaker.className = `beaker ${i % 2 === 0 ? 'bg-red-300' : 'bg-blue-300'}`;
+                beaker.innerText = reactant;
+
+                beaker.addEventListener('click', () => {
+                    let resultRect = document.getElementById('result-beaker').getBoundingClientRect();
+                    let beakerRect = beaker.getBoundingClientRect();
+                    let moveX = resultRect.left - beakerRect.left;
+                    let moveY = resultRect.top - beakerRect.top;
+
+                    beaker.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    beaker.style.pointerEvents = 'none';
+
+                    if (experiment.reactants.includes(reactant)) {
+                        reactantStates[reactant] = true;
+                    } else {
+                        wrongMessage.classList.remove('hidden');
+                        resultLiquid.classList.add('bg-red-500');
+                        resultLiquid.style.height = '80%';
+                        nextButton.disabled = false; // Enable the "Next" button even after a wrong reaction
+                        nextButton.classList.remove('opacity-50');
+                    }
+                    checkReaction();
+                });
+
+                container.appendChild(beaker);
+            });
+
+            function checkReaction() {
+                if (Object.keys(reactantStates).length === experiment.reactants.length) {
+                    reactionText.classList.remove('hidden');
+                    reactionText.innerText = experiment.equation;
+                    correctCount++;
+                    resultLiquid.classList.add(experiment.color);
+                    resultLiquid.style.height = '80%';
+                    nextButton.disabled = false;
+                    nextButton.classList.remove('opacity-50');
+                }
+            }
+        }
+
+        nextButton.addEventListener('click', () => {
+            currentExperiment++;
+            startExperiment(currentExperiment);
+        });
+
+        // Home button to reset the game
+        homeButton.addEventListener('click', () => {
+            currentExperiment = 0;
+            correctCount = 0;
+            startExperiment(currentExperiment);
+        });
+
+        startExperiment(currentExperiment);
+    </script>
+</body>
+
+</html>

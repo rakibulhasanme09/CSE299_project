@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .correct {
+      color: green;
+    }
+
+    .incorrect {
+      color: red;
+    }
+
+    .option {
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
+
+    .option:hover {
+      transform: scale(1.05);
+      background-color: #f0f0f0;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .bounce {
+      animation: bounce 0.5s;
+    }
+
+    /* Media queries for mobile responsiveness */
+    @media (max-width: 640px) {
+      #game-container {
+        width: 90%;
+        max-width: 300px;
+      }
+
+      #question {
+        font-size: 1.5rem;
+      }
+
+      #options {
+        grid-template-columns: 1fr;
+      }
+
+      .option {
+        padding: 12px;
+        font-size: 1rem;
+      }
+
+      #result {
+        font-size: 1.2rem;
+      }
+
+      #next {
+        padding: 8px 16px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-orange-100 via-green-400 to-green-700">
+  <div id="game-container" class=" p-8 rounded-lg shadow-2xl text-center w-96">
+    <p id="question" class="text-2xl font-bold mb-4 text-gray-800"></p>
+    <div id="options" class="grid grid-cols-2 gap-4 mb-4">
+    </div>
+    <p id="result" class="mt-4 text-xl font-bold"></p>
+    <button id="next" class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 hidden">Next</button>
+  </div>
+
+  <script>
+    let currentProblem = 0;
+    let problems = [];
+    let score = 0;
+
+    function generateProblem() {
+      const num1 = Math.floor(Math.random() * 10) + 1;
+      const num2 = Math.floor(Math.random() * 10) + 1;
+      const operators = ['+', '-', '*', '/'];
+      const operator = operators[Math.floor(Math.random() * operators.length)];
+
+      let answer;
+      switch (operator) {
+        case '+':
+          answer = num1 + num2;
+          break;
+        case '-':
+          answer = num1 - num2;
+          break;
+        case '*':
+          answer = num1 * num2;
+          break;
+        case '/':
+          answer = (num1 / num2).toFixed(2);
+          break;
+      }
+
+      const wrongAnswers = [];
+      while (wrongAnswers.length < 3) {
+        const wrongAnswer = Math.floor(Math.random() * 20) + 1;
+        if (wrongAnswer !== answer && !wrongAnswers.includes(wrongAnswer)) {
+          wrongAnswers.push(wrongAnswer);
+        }
+      }
+
+      const allAnswers = [answer, ...wrongAnswers];
+      allAnswers.sort(() => Math.random() - 0.5);
+
+      return {
+        question: `${num1} ${operator} ${num2} = ?`,
+        answer: answer,
+        options: allAnswers
+      };
+    }
+
+    function initializeGame() {
+      for (let i = 0; i < 5; i++) {
+        problems.push(generateProblem());
+      }
+      displayProblem();
+    }
+
+    function displayProblem() {
+      const questionElement = document.getElementById('question');
+      const optionsElement = document.getElementById('options');
+      const resultElement = document.getElementById('result');
+
+      questionElement.textContent = problems[currentProblem].question;
+      resultElement.textContent = '';
+      resultElement.classList.remove('correct', 'incorrect');
+      document.getElementById('next').classList.add('hidden');
+
+      optionsElement.innerHTML = '';
+
+      problems[currentProblem].options.forEach((option, index) => {
+        const optionButton = document.createElement('div');
+        optionButton.className = 'option bg-gradient-to-r from-pink-200 to-purple-200 p-4 rounded-lg text-lg font-bold text-gray-800 shadow-md';
+        optionButton.textContent = option;
+        optionButton.addEventListener('click', () => checkAnswer(option));
+        optionsElement.appendChild(optionButton);
+      });
+    }
+
+    function checkAnswer(selectedAnswer) {
+      const correctAnswer = parseFloat(problems[currentProblem].answer);
+      const resultElement = document.getElementById('result');
+
+      if (parseFloat(selectedAnswer) === correctAnswer) {
+        resultElement.textContent = 'Correct Answer!';
+        resultElement.classList.add('correct');
+        resultElement.classList.remove('incorrect');
+        score++;
+      } else {
+        resultElement.textContent = `Wrong Answer! The correct answer is ${correctAnswer}.`;
+        resultElement.classList.add('incorrect');
+        resultElement.classList.remove('correct');
+      }
+
+      const options = document.querySelectorAll('.option');
+      options.forEach(option => {
+        option.style.pointerEvents = 'none';
+      });
+
+      resultElement.classList.add('bounce');
+
+      document.getElementById('next').classList.remove('hidden');
+    }
+
+    function nextProblem() {
+      currentProblem++;
+      if (currentProblem < problems.length) {
+        displayProblem();
+      } else {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      const gameContainer = document.getElementById('game-container');
+      gameContainer.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Game Over!</h2>
+        <p class="text-xl text-gray-800">Your score: ${score} out of ${problems.length}</p>
+        <div class="flex gap-4 justify-center">
+          <button onclick="location.reload()" class="mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600">Play Again</button>
+          <a href="./dashboard.html"><button onclick="goHome()" class="mt-4 bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-teal-600">Home</button></a>
+        </div>
+      `;
+    }
+
+    document.getElementById('next').addEventListener('click', nextProblem);
+
+    initializeGame();
+  </script>
+</body>
+
+</html>
